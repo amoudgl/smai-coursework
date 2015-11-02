@@ -27,7 +27,7 @@ def classify(model, featureVectors):
 		total += 1
 	data = featureVectors[:,-1].flatten()
 	data = data.astype(np.int).tolist()
-	print z
+	# print z
 	print cr(data, z)
 	print "Accuracy : ",
 	print (true * 100) / total
@@ -107,10 +107,12 @@ testData = addLabels(testData, testLabels)
 model = train(alphas, trainLabels)
 classify(model, testData)
 
-# scikit_kpca = KernelPCA(n_components=100, kernel='rbf', gamma=15)
+# print X.shape
+# scikit_kpca = KernelPCA(n_components=100 , kernel="rbf", gamma=15)
 # trainData = scikit_kpca.fit_transform(X)
-# testData = scikit_kpca.fit_transform(testData)
-# model = train(trainData, trainLabels)
+# print trainData
+# testData = scikit_kpca.transform(testData)
 # testData = addLabels(testData, testLabels)
+# model = train(trainData, trainLabels)
 # classify(model, testData)
 
