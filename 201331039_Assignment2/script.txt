@@ -1,0 +1,2 @@
+awk -F, '($65 == 0 || $65 == 7){print}' optdigits.tra > train.txt
+awk -F, '($65 == 0 || $65 == 7){print}' optdigits.tes > test.txt
