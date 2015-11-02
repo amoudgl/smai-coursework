@@ -71,15 +71,15 @@ def ldaTransform(data):
 	w = ev[:, 0]
 	w = np.matrix(w)
 	#w = np.transpose(w)
-	l = data[:, -1]
-	data = data[:, :-1]
+	#print newData
+	return w
+
+def project(data, w):
 	data = np.matrix(data)
 	data = np.transpose(data)
 	newData = w * data
 	newData = np.transpose(newData)
 	newData = np.array(newData)
-	newData = addLabels(newData, l)
-	#print newData
 	return newData
 
 def addLabels(data, trainLabels):
@@ -117,11 +117,14 @@ file = open('arcene_valid.labels.txt')
 testLabels = getDataMatrix(file, 0)
 #LDA
 trainData = addLabels(data, trainLabels)
+# testData = addLabels(testData, testLabels)
+# fullData = mergeData(trainData, testData)
+ev = ldaTransform(trainData)
+trainData = trainData[:, :-1]
+trainData = project(trainData, ev)
+testData = project(testData, ev)
+trainData = addLabels(trainData, trainLabels)
 testData = addLabels(testData, testLabels)
-fullData = mergeData(trainData, testData)
-Data = ldaTransform(fullData)
-trainData = Data[:data.shape[0], :]
-testData = Data[data.shape[0]:, :]
 #testData = ldaTransform(testData)
 C0 = trainData[trainData[:, -1] == -1]
 C1 = trainData[trainData[:, -1] == 1]

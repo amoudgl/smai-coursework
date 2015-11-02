@@ -41,10 +41,10 @@ def pcaTransform(data, k):
 	eigenVectors = ev[:, :k]
 	eigenVectors = np.matrix(eigenVectors)
 	eigenVectors = np.transpose(eigenVectors)
-	newData = eigenVectors * data	
-	newData = np.transpose(newData)
-	newData = np.array(newData)
-	return newData
+	# newData = eigenVectors * data	
+	# newData = np.transpose(newData)
+	# newData = np.array(newData)
+	return eigenVectors
 
 def addLabels(data, trainLabels):
 	b = np.zeros((data.shape[0], data.shape[1] + 1))
@@ -57,6 +57,16 @@ def mergeData(trainData, testData):
 	x[:trainData.shape[0], :] = trainData
 	x[trainData.shape[0]:, :] = testData
 	return x
+
+def project(data, eigenVectors):
+	data = data - np.mean(data, axis = 0)
+	data = np.matrix(data)
+	data = np.transpose(data)
+	newData = eigenVectors * data	
+	newData = np.transpose(newData)
+	newData = np.array(newData)
+	return newData
+
 
 def getDataMatrix(file, intOrFloat):
 	#intOrFloat decides whether data should be int or float
@@ -95,10 +105,11 @@ file = open('arcene_valid.labels.txt')
 testLabels = getDataMatrix(file, 0)
 #PCA
 k = 1000 
-fullData = mergeData(data, testData)
-Data = pcaTransform(fullData, k)
-trainData = Data[:data.shape[0], :]
-testData = Data[data.shape[0]:, :]
+ev = pcaTransform(data, k)
+# trainData = Data[:data.shape[0], :]
+# testData = Data[data.shape[0]:, :]
+trainData = project(data, ev)
+testData = project(testData, ev)
 trainData = addLabels(trainData, trainLabels)
 #testData = pcaTransform(testData, k)
 testData = addLabels(testData, testLabels)
