@@ -22,12 +22,9 @@ def classify(model, featureVectors):
 		if feature[-1] == predict(model, feature[:-1]):
 			true += 1
 		z = z + predict(model, feature[:-1]).astype(np.int).tolist()
-		# if predict(model, feature[:-1]) == 1:
-		# 	print "Yes!"
 		total += 1
 	data = featureVectors[:,-1].flatten()
 	data = data.astype(np.int).tolist()
-	# print z
 	print cr(data, z)
 	print "Accuracy : ",
 	print (true * 100) / total
@@ -96,23 +93,8 @@ testLabels = getDataMatrix(file, 0)
 
 K = 100
 gamma = 15
-# fullData = mergeData(X, testData)
 alphas, lambdas = kPCA(X, gamma, K)
-# print X
-# print Data
 testData = project(testData, X, K, gamma, alphas, lambdas)
-# trainData = Data[:X.shape[0], :]
-# testData = Data[X.shape[0]:, :]
 testData = addLabels(testData, testLabels)
 model = train(alphas, trainLabels)
 classify(model, testData)
-
-# print X.shape
-# scikit_kpca = KernelPCA(n_components=100 , kernel="rbf", gamma=15)
-# trainData = scikit_kpca.fit_transform(X)
-# print trainData
-# testData = scikit_kpca.transform(testData)
-# testData = addLabels(testData, testLabels)
-# model = train(trainData, trainLabels)
-# classify(model, testData)
-

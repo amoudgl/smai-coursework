@@ -3,29 +3,13 @@ from numpy import linalg as LA
 import math
 
 def gaussian(x, v, M, V):
-	#G = (1/math.sqrt(2 * math.pi * V[x])) * (math.exp(-(math.pow((v - M[x]),2)/(2 * V[x]))))
-#	G = (math.sqrt((2 * V[x])/math.pi)) * ((math.exp(-(math.pow((v - M[x]),2)/(2 * V[x]))))- (math.exp(-(math.pow((mins[x] - M[x]),2)/(2 * V[x]))))) 
 	G = (math.exp(-(math.pow((v - M[x]),2)/(2 * V[x]))))
 	return G
 	
 def findVariance(C):
-	#d = C.shape[1]
-	#n = C.shape[0]
-	#V = np.zeros(d)
-	#for i in xrange(d):
-	#		V[i] = np.var(C[:, i])
-	#	if (V[i] == 0):
-	#		print if
-	#return V
 	return np.var(C, axis = 0)	
 
 def findMean(C):
-	#d = C.shape[1]
-	#n = C.shape[0]
-	#M = np.zeros(d)
-	#for i in xrange(d):
-	#	M[i] = np.mean(C[:, i])
-	#return M
 	return np.mean(C, axis = 0)
 
 def pcaTransform(data, k):	
@@ -41,9 +25,6 @@ def pcaTransform(data, k):
 	eigenVectors = ev[:, :k]
 	eigenVectors = np.matrix(eigenVectors)
 	eigenVectors = np.transpose(eigenVectors)
-	# newData = eigenVectors * data	
-	# newData = np.transpose(newData)
-	# newData = np.array(newData)
 	return eigenVectors
 
 def addLabels(data, trainLabels):
@@ -86,15 +67,6 @@ def getDataMatrix(file, intOrFloat):
 		data = data.astype(int)
 	return data
 
-#def findMinimums(data):
-	#train = data[:, :-1	]
-	#mins = np.zeros((train.shape[1]))
-	#for i in xrange(train.shape[1])
-#		fv = train[:, i]
-#		mins[i] = np.amin(fv)
-#	return mins 
-	
-#Preprocessing
 file = open('arcene_train.data.txt')
 data = getDataMatrix(file, 1)
 file = open('arcene_train.labels.txt')
@@ -106,13 +78,12 @@ testLabels = getDataMatrix(file, 0)
 #PCA
 k = 1000 
 ev = pcaTransform(data, k)
-# trainData = Data[:data.shape[0], :]
-# testData = Data[data.shape[0]:, :]
 trainData = project(data, ev)
 testData = project(testData, ev)
 trainData = addLabels(trainData, trainLabels)
-#testData = pcaTransform(testData, k)
 testData = addLabels(testData, testLabels)
+
+#Write output to file
 #f = open('trainData.txt', w)
 #for i in xrange(trainData.shape[0]):
 #	for j in xrange(trainData.shape[1]):
@@ -140,11 +111,9 @@ if (pr0 > pr1):
 else:
 	maxPrior = int(1)
 print maxPrior
-#print pr0
-#print pr1
-#mins = findMinimums(trainData)
 L = math.pow(10, -323)
 MAX = -math.pow(10, 300)
+
 #Testing phase
 totalValues = testData.shape[0]	
 myPrediction = np.zeros([totalValues])
@@ -175,22 +144,14 @@ for i in xrange(0, totalValues):
 		print "Max - ", maxPrior
 		myPrediction[i] = maxPrior
 trueAns = testData[:, -1]
-#print len(myPrediction[myPrediction == 0])
-#print len(myPrediction[myPrediction == 1])
-#print len(trueAns[trueAns == 0])
-#print len(trueAns[trueAns == 1])
 correctValues = 0
 for i in range(totalValues):
 	if (myPrediction[i] == trueAns[i]):
 		correctValues = correctValues + 1
-	#else:
-#		print i + trainData.shape[0]
 
 correctValues = float(correctValues)
 totalValues = float(totalValues)
 accuracy = correctValues/totalValues * 100
-#print correctValues
 print accuracy
-#Accuracy is less : Random probes added in data, features may not be gaussian, PCA reduces dimensions
 
 

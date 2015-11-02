@@ -4,27 +4,13 @@ import math
 from sklearn import preprocessing
 
 def gaussian(v, M, V):
-	#G = (1/math.sqrt(2 * math.pi * V[x])) * (math.exp(-(math.pow((v - M[x]),2)/(2 * V[x]))))
-#	G = (math.sqrt((2 * V[x])/math.pi)) * ((math.exp(-(math.pow((v - M[x]),2)/(2 * V[x]))))- (math.exp(-(math.pow((mins[x] - M[x]),2)/(2 * V[x]))))) 
 	G = (math.exp(-(math.pow((v - M),2)/(2 * V))))
 	return G
 
 def findVariance(C):
-	#d = C.shape[1]
-	#n = C.shape[0]
-	#V = np.zeros(d)
-	#for i in xrange(d):
-	#	V[i] = np.var(C[:, i])
-	#return V
 	return np.var(C, axis = 0)
 
 def findMean(C):
-	#d = C.shape[1]
-	#n = C.shape[0]
-	#M = np.zeros(d)
-	#for i in xrange(d):
-	#	M[i] = np.mean(C[:, i])
-	#return M
 	return np.mean(C, axis = 0)
 
 def mergeData(trainData, testData):
@@ -34,7 +20,6 @@ def mergeData(trainData, testData):
 	return x
 
 def ldaTransform(data):
-	#data[:, :-1] = data[:, :-1] - np.mean(data[:, :-1], axis = 0)
 	C0 = data[data[:, -1] == -1]
 	C1 = data[data[:, -1] == 1]
 	C0 = C0[:, :-1]
@@ -42,8 +27,6 @@ def ldaTransform(data):
 	S0 = np.cov(np.transpose(C0))
 	S1 = np.cov(np.transpose(C1))
 	SW = S0 + S1
-	#print "SW - "
-	#print SW
 	Mu0 = np.mean(C0, axis = 0)
 	Mu1 = np.mean(C1, axis = 0)
 	Mu = np.mean(data, axis = 0)
@@ -52,16 +35,12 @@ def ldaTransform(data):
 	Mu0 = np.matrix(Mu0)
 	Mu1 = np.matrix(Mu1)
 	SB = C0.shape[0] * np.transpose(Mu0 - Mu) * (Mu0 - Mu) + C1.shape[0] * np.transpose(Mu1 - Mu) * (Mu1 - Mu)
-	#print "SB -"
-	#print SB
 	#t = Mu0 - Mu1
 	#t = np.matrix(t)
 	#SB = np.transpose(t) * t
 	Swin = LA.pinv(SW) #costly 
 	Swin = np.matrix(Swin)
 	SwinSB = Swin * SB #costly 
-	#print "SWinSB - "
-	#print SwinSB
 	e, v = LA.eig(SwinSB) #costly 
 	s = np.argsort(e)[::-1]
 	v = np.array(v)
@@ -70,8 +49,6 @@ def ldaTransform(data):
 		ev[:, i] = v[:, s[i]]
 	w = ev[:, 0]
 	w = np.matrix(w)
-	#w = np.transpose(w)
-	#print newData
 	return w
 
 def project(data, w):
@@ -115,17 +92,15 @@ file = open('arcene_valid.data.txt')
 testData = getDataMatrix(file, 1)
 file = open('arcene_valid.labels.txt')
 testLabels = getDataMatrix(file, 0)
+
 #LDA
 trainData = addLabels(data, trainLabels)
-# testData = addLabels(testData, testLabels)
-# fullData = mergeData(trainData, testData)
 ev = ldaTransform(trainData)
 trainData = trainData[:, :-1]
 trainData = project(trainData, ev)
 testData = project(testData, ev)
 trainData = addLabels(trainData, trainLabels)
 testData = addLabels(testData, testLabels)
-#testData = ldaTransform(testData)
 C0 = trainData[trainData[:, -1] == -1]
 C1 = trainData[trainData[:, -1] == 1]
 V0 = findVariance(C0[:, :-1])
@@ -134,10 +109,9 @@ M0 = findMean(C0[:, :-1])
 M1 = findMean(C1[:, :-1])
 pr0 = float(C0.shape[0])/float(trainData.shape[0])
 pr1 = float(C1.shape[0])/float(trainData.shape[0])
-
-#mins = findMinimums(trainData)
 L = math.pow(10, -323)
 MAX = -math.pow(10, 300)
+
 #Testing phase
 totalValues = testData.shape[0]	
 myPrediction = np.zeros([totalValues])
@@ -166,20 +140,12 @@ for i in xrange(0, totalValues):
 		myPrediction[i] = int(1)
 
 trueAns = testData[:, -1]
-#print len(myPrediction[myPrediction == 0])
-#print len(myPrediction[myPrediction == 1])
-#print len(trueAns[trueAns == 0])
-#print len(trueAns[trueAns == 1])
 correctValues = 0
 for i in range(totalValues):
 	if (myPrediction[i] == trueAns[i]):
 		correctValues = correctValues + 1
-	#else:
-#		print i + trainData.shape[0]
-
 correctValues = float(correctValues)
 totalValues = float(totalValues)
 accuracy = correctValues/totalValues * 100
-#print correctValues
 print accuracy
 
