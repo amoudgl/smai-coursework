@@ -29,12 +29,6 @@ def classify(model, featureVectors):
 	print "Accuracy : ",
 	print (true * 100) / total
 
-def mergeData(trainData, testData):
-	x = np.zeros((trainData.shape[0] + testData.shape[0], trainData.shape[1]))
-	x[:trainData.shape[0], :] = trainData
-	x[trainData.shape[0]:, :] = testData
-	return x
-
 def getDataMatrix(file, intOrFloat):
 	#intOrFloat decides whether data should be int or float
 	if (intOrFloat == 1): 

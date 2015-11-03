@@ -5,12 +5,6 @@ from sklearn import preprocessing
 from sklearn import svm, preprocessing
 from sklearn.metrics import classification_report as cr
 
-def mergeData(trainData, testData):
-	x = np.zeros((trainData.shape[0] + testData.shape[0], trainData.shape[1]))
-	x[:trainData.shape[0], :] = trainData
-	x[trainData.shape[0]:, :] = testData
-	return x
-
 def ldaTransform(data):
 	C0 = data[data[:, -1] == -1]
 	C1 = data[data[:, -1] == 1]
@@ -72,31 +66,6 @@ def getDataMatrix(file, intOrFloat):
 		data = data.astype(int)
 	return data
 
-
-def train(X, y):
-	clf = svm.SVC(kernel='linear', C = 1.0, max_iter = -1)
-	clf.fit(X, y)
-	return clf
-
-def predict(model, vector):
-	return model.predict(vector)
-
-def classify(model, featureVectors):
-	true = 0
-	total = 0
-	z = []
-	for feature in featureVectors:
-		if feature[-1] == predict(model, feature[:-1]):
-			true += 1
-		z = z + predict(model, feature[:-1]).astype(np.int).tolist()
-		total += 1
-	data = featureVectors[:,-1].flatten()
-	data = data.astype(np.int).tolist()
-	print z
-	print cr(data, z)
-	print "Accuracy : ",
-	print (true * 100) / total
-
 file = open('arcene_train.data.txt')
 data = getDataMatrix(file, 1)
 file = open('arcene_train.labels.txt')
@@ -111,8 +80,5 @@ ev = ldaTransform(trainData)
 trainData = trainData[:, :-1]
 trainData = project(trainData, ev)
 testData = project(testData, ev)
-model = train(trainData, trainLabels)
-testData = addLabels(testData, testLabels)
-classify(model, testData)
 
 

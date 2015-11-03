@@ -6,12 +6,6 @@ from sklearn import svm, preprocessing
 from sklearn.metrics import classification_report as cr
 from sklearn.decomposition import KernelPCA
 
-def mergeData(trainData, testData):
-	x = np.zeros((trainData.shape[0] + testData.shape[0], trainData.shape[1]))
-	x[:trainData.shape[0], :] = trainData
-	x[trainData.shape[0]:, :] = testData
-	return x
-
 def getDataMatrix(file, intOrFloat):
 	#intOrFloat decides whether data should be int or float
 	if (intOrFloat == 1): 
