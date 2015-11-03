@@ -80,13 +80,13 @@ def kPCA(X, gamma, k):
 	lambdas = [eigenValues[-i] for i in range(1,k+1)]
 	return alphas, lambdas
 
-file = open('arcene_train.data.txt')
+file = open('madelon_train.data.txt')
 X = getDataMatrix(file, 1)
-file = open('arcene_train.labels.txt')
+file = open('madelon_train.labels.txt')
 trainLabels = getDataMatrix(file, 0)
-file = open('arcene_valid.data.txt')
+file = open('madelon_valid.data.txt')
 testData = getDataMatrix(file, 1)
-file = open('arcene_valid.labels.txt')
+file = open('madelon_valid.labels.txt')
 testLabels = getDataMatrix(file, 0)
 
 K = 100

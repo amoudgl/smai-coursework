@@ -65,7 +65,7 @@ testData = getDataMatrix(file, 1)
 file = open('arcene_valid.labels.txt')
 testLabels = getDataMatrix(file, 0)
 
-K = 100
+K = 10
 gamma = 15
 alphas, lambdas = kPCA(X, gamma, K)
 testData = project(testData, X, K, gamma, alphas, lambdas)
