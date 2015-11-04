@@ -83,21 +83,6 @@ testData = project(testData, ev)
 trainData = addLabels(trainData, trainLabels)
 testData = addLabels(testData, testLabels)
 
-#Write output to file
-#f = open('trainData.txt', w)
-#for i in xrange(trainData.shape[0]):
-#	for j in xrange(trainData.shape[1]):
-#		f.write(str(trainData[i,j]) + " ")
-#	f.write("\n")
-#f.close()
-
-#f = open('testData.txt', w)
-#for i in xrange(testData.shape[0]):
-#	for j in xrange(testData.shape[1]):
-#		f.write(str(testData[i,j]) + " ")
-#	f.write("\n")
-#f.close()
-
 C0 = trainData[trainData[:, -1] == -1]
 C1 = trainData[trainData[:, -1] == 1]
 V0 = findVariance(C0[:, :-1])
