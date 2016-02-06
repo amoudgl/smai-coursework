@@ -41,7 +41,25 @@ Abhinav Moudgil
 
 \subsection*{Convergence proof for single sample perceptron}
 
+We need to show each iteration brings weight vector closer to solution region. Let the solution vector be \^{a}. 
+\begin{par} 
+$$ a(k+1) - \aplha \^{a} = (a(k) - \alpha \^{a}) + y^k $$ 
+Taking norm and squaring,
+$$ \|  a(k+1) - \aplha \^{a} \|^2 = \|  a(k) - \aplha \^{a} \|^2 + 2(a(k)  - \alpha \^{a}) ^ t y ^ k + \|y^k\|^2 $$ 
 
+Since $y^k$ was misclassified, $a^t (k) y^k \leq 0$, thus 
+$$ \|  a(k+1) - \aplha \^{a} \|^2 \leq \|  a(k) - \aplha \^{a} \|^2 + \|y^k\|^2 - 2 \alpha \^{a}^t y ^ k
+ 
+After k corrections, 
+$$ \|  a(k+1) - \aplha \^{a} \|^2 \leq \|  a(k) - \aplha \^{a} \|^2 - k \beta^2
+
+where \beta^2 = max$\|y\|^2$
+
+Hence, sequence of corrections must terminate after no more than $k_0$ corrections, where
+
+$$ k_0 =  \frac{\|  a(1) - \aplha \^{a} \|^2}{\beta^2} $$ 
+
+\end{par}
 
 \subsection*{Single sample perceptron}
 
@@ -389,10 +407,142 @@ Following are the convergence time(in seconds) for both the algorithms:
 \subsection*{Neural network for handwritten digit classification}
 
 \begin{par}
-Data : Optical Recognition of Handwritten Digits Data Set 
+\textbf{Dataset}: Optical Recognition of Handwritten Digits Data Set \\ \\https://archive.ics.uci.edu/ml/datasets/Optical+Recognition+of+Handwritten+Digits 
+\\ Dataset was trimmed to obtain only training and test samples of class 0 and 7. This was done using single bash command. 
+\\ \\
+\textbf{Preprocessing}: 32x32 bitmap images are processed to 8x8 data using by counting number of pixels in 4x4 blocks. Thus each sample contains 64 features and one class (0 or 7). 
+\\ \\
+\textbf{Classifier}:
+\\
+Optimal Model: 64-70-2 \\ 
+Different number of hidden units were tested to obtain the most optimal model that has average accuracy of 99.72\% for this dataset. It also agrees with general rule of m/10 hidden units where m is the number of training samples. \\ 
+Bias units are taken both at input and hidden layer. \\ 
+Feed forward operation function: \\
 
+\textbf{Code:}
 \end{par}
 
+\begin{verbatim}
+
+%% Neural Network with one hidden layer
+% Neural network for handwritten digit classification
+% Model of neural network - 64-70-2
+
+clear;
+clc;
+close all;
+
+%% Training Phase
+tic
+
+filename = 'train.txt';
+X = dlmread(filename, ',');
+n = size(X, 1); % Number of training samples
+t = X(:, size(X, 2));
+%X = X(:, 1 : (size(X, 2) - 1));
+X(:, size(X, 2)) = 1;
+X = X';
+
+% Initialization by feedforward operation
+%bias1 = 1;
+%bias2 = 1;
+nHiddenUnits = 70;
+f = @(x) logsig(x);
+df = @(x) logsig(x) .* (1 - logsig(x));
+
+a = -1/sqrt(size(X, 1));
+b = 1/sqrt(size(X, 1));
+wji = (b - a) .* rand(nHiddenUnits, size(X, 1)) + a;
+netj = wji * X;
+
+% Apply fnet from 1 : 32
+yj(1 : nHiddenUnits - 1, :) = f(netj(1 : nHiddenUnits - 1, :));
+yj(nHiddenUnits, :) = 1;
+a = -1/sqrt(size(netj, 1));
+b = 1/sqrt(size(netj, 1));
+wkj = (b - a) .* rand(2, size(yj, 1)) + a;
+netk = wkj * yj;
+zk = f(netk);
+
+% Backpropagation operation
+tk(:, 1) = t < 6;
+tk(:, 2) = t > 6;
+tk = tk';
+Jw = 0.5 * sum((tk - zk) .^ 2); % Gives error for each training sample in each column
+delk = (tk - zk) .* df(netk);
+delj = df(netj) .* (wkj' * delk);
+
+eta = 1;
+k = 0;
+theta = 0.7;
+while k < n
+    k = mod(k, n) + 1; %Kth training sample
+    xk = X(:, k);
+    netj(:, k) = wji * X(:, k);
+    yj(1 : nHiddenUnits - 1, k) = f(netj(1 : nHiddenUnits - 1, k));
+    yj(nHiddenUnits, k) = 1;
+    netk(:, k) = wkj * yj(:, k);
+    zk(:, k) = f(netk(:, k));
+    delk(:, k) = (tk(:, k) - zk(:, k)) .* df(netk(:, k));
+    % delj(:, k) = df(netj(:, k)) * delk(:, k)' * wkj(:, k);
+    delj(:, k) = df(netj(:, k)) .* (wkj' * delk(:, k));
+    wkj = wkj + eta * delk(:, k) * yj(:, k)';
+    wji = wji + eta * delj(:, k) * xk';
+    
+    % Updating all values according to new weights
+    
+    netj = wji * X;
+    yj(1 : nHiddenUnits - 1, :) = f(netj(1 : nHiddenUnits - 1, :));
+    yj(nHiddenUnits, :) = 1;
+    netk = wkj * yj;
+    zk = f(netk);
+    
+    % Error
+    Jw(k) = 0.5 * sum((tk(:, k) - zk(:, k)) .^ 2);
+end
+
+
+%% Testing Phase
+
+
+clear tk zk
+filename = 'test.txt';
+X = dlmread(filename, ',');
+n = size(X, 1); % Number of test samples
+t = X(:, size(X, 2));
+% X = X(:, 1 : 64);
+X(:, size(X, 2)) = 1;
+X = X';
+zk = zeros(2, size(X, 2));
+tk(:, 1) = t < 6;
+tk(:, 2) = t > 6;
+tk = tk';
+k = 0;
+
+while k < n
+    k = mod(k, n) + 1;
+    xk = X(:, k);
+    netj(:, k) = wji * X(:, k);
+    yj(1 : nHiddenUnits - 1, k) = f(netj(1 : nHiddenUnits - 1, k));
+    yj(nHiddenUnits, k) = 1;
+    netk(:, k) = wkj * yj(:, k);
+    zk(:, k) = f(netk(:, k));
+end
+zk = zk > 0.5;
+err = tk - zk;
+numberofErrors = sum(max(err ~= 0))
+accuracy = (size(X, 2) - (numberofErrors))/size(X, 2)
+
+toc
+
+\end{verbatim}
+\begin{par} 
+\textbf{Observations:} \\
+\\
+1. Accuracy increases with increase in number of hidden units. But this might lead to over-fitting of data. \\
+2. Without bias units, netj will have very high value, which implies yj (=f(netj)) will saturate to 1 if weights are positively initialized. Thus, f'(netj) will be 0 and weghts will not get updated. \\
+3. Classification can also be done without bias units. Do normalization in each feature. This way, value of netj will never overshoot and we'll get average accuracy of around 99\%. \\ 
+4. Convergence time increases with increase in number of hidden units. 
+\end{par} 
 \end{document}
     
-

@@ -1,6 +1,6 @@
 %% Neural Network with one hidden layer
 % Neural network for handwritten digit classification
-% Model of neural network - 64-32-2
+% Model of neural network - 64-70-2
 
 clear;
 clc;
@@ -12,30 +12,26 @@ tic
 filename = 'train.txt';
 X = dlmread(filename, ',');
 n = size(X, 1); % Number of training samples
-t = X(:, 65);
-X = X(:, 1 : 64);
+t = X(:, size(X, 2));
+%X = X(:, 1 : (size(X, 2) - 1));
+X(:, size(X, 2)) = 1;
 X = X';
-
-%Normalization of input
-for i = 1 : 64
-    if (sum(X(i, :)) ~= 0)
-        X(i, :) = X(i, :) / max(X(i, :));
-    end
-end
-
 
 % Initialization by feedforward operation
 %bias1 = 1;
 %bias2 = 1;
+nHiddenUnits = 70;
 f = @(x) logsig(x);
 df = @(x) logsig(x) .* (1 - logsig(x));
 
 a = -1/sqrt(size(X, 1));
 b = 1/sqrt(size(X, 1));
-wji = (b - a) .* rand(32, size(X, 1)) + a;
+wji = (b - a) .* rand(nHiddenUnits, size(X, 1)) + a;
 netj = wji * X;
-yj = f(netj);
-%yj(33, :) = 1;
+
+% Apply fnet from 1 : 32
+yj(1 : nHiddenUnits - 1, :) = f(netj(1 : nHiddenUnits - 1, :));
+yj(nHiddenUnits, :) = 1;
 a = -1/sqrt(size(netj, 1));
 b = 1/sqrt(size(netj, 1));
 wkj = (b - a) .* rand(2, size(yj, 1)) + a;
@@ -52,11 +48,13 @@ delj = df(netj) .* (wkj' * delk);
 
 eta = 1;
 k = 0;
+theta = 0.7;
 while k < n
     k = mod(k, n) + 1; %Kth training sample
     xk = X(:, k);
     netj(:, k) = wji * X(:, k);
-    yj(:, k) = f(netj(:, k));
+    yj(1 : nHiddenUnits - 1, k) = f(netj(1 : nHiddenUnits - 1, k));
+    yj(nHiddenUnits, k) = 1;
     netk(:, k) = wkj * yj(:, k);
     zk(:, k) = f(netk(:, k));
     delk(:, k) = (tk(:, k) - zk(:, k)) .* df(netk(:, k));
@@ -66,24 +64,28 @@ while k < n
     wji = wji + eta * delj(:, k) * xk';
     
     % Updating all values according to new weights
-    %{
+    
     netj = wji * X;
-    yj = logsig(netj);
+    yj(1 : nHiddenUnits - 1, :) = f(netj(1 : nHiddenUnits - 1, :));
+    yj(nHiddenUnits, :) = 1;
     netk = wkj * yj;
     zk = f(netk);
-    %}
+    
     % Error
     Jw(k) = 0.5 * sum((tk(:, k) - zk(:, k)) .^ 2);
 end
 
+
 %% Testing Phase
+
 
 clear tk zk
 filename = 'test.txt';
 X = dlmread(filename, ',');
 n = size(X, 1); % Number of test samples
-t = X(:, 65);
-X = X(:, 1 : 64);
+t = X(:, size(X, 2));
+% X = X(:, 1 : 64);
+X(:, size(X, 2)) = 1;
 X = X';
 zk = zeros(2, size(X, 2));
 tk(:, 1) = t < 6;
@@ -95,7 +97,8 @@ while k < n
     k = mod(k, n) + 1;
     xk = X(:, k);
     netj(:, k) = wji * X(:, k);
-    yj(:, k) = f(netj(:, k));
+    yj(1 : nHiddenUnits - 1, k) = f(netj(1 : nHiddenUnits - 1, k));
+    yj(nHiddenUnits, k) = 1;
     netk(:, k) = wkj * yj(:, k);
     zk(:, k) = f(netk(:, k));
 end
